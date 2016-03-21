@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klonamari.CSharp.Plugins", "Klonamari.CSharp.Plugins.csproj", "{EEB6EBBA-1D6D-E876-0AD3-3BFAD05C7200}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klonamari.CSharp", "Klonamari.CSharp.csproj", "{7F38BA8B-7423-8587-B5A6-E349AFFFE225}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klonamari.CSharp.Editor", "Klonamari.CSharp.Editor.csproj", "{2436A7A6-A2B1-C7C2-11F7-AB76DD3E7D19}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEB6EBBA-1D6D-E876-0AD3-3BFAD05C7200}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEB6EBBA-1D6D-E876-0AD3-3BFAD05C7200}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEB6EBBA-1D6D-E876-0AD3-3BFAD05C7200}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEB6EBBA-1D6D-E876-0AD3-3BFAD05C7200}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F38BA8B-7423-8587-B5A6-E349AFFFE225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F38BA8B-7423-8587-B5A6-E349AFFFE225}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F38BA8B-7423-8587-B5A6-E349AFFFE225}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F38BA8B-7423-8587-B5A6-E349AFFFE225}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2436A7A6-A2B1-C7C2-11F7-AB76DD3E7D19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2436A7A6-A2B1-C7C2-11F7-AB76DD3E7D19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2436A7A6-A2B1-C7C2-11F7-AB76DD3E7D19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2436A7A6-A2B1-C7C2-11F7-AB76DD3E7D19}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
