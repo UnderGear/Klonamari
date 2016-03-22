@@ -24,7 +24,14 @@ namespace Klonamari
             }
 
             float adjustedTorqueMultiplier = katamari.TORQUE_MULT * katamari.rB.mass;
-            float adjustedForceMultiplier = katamari.FORCE_MULT * katamari.rB.mass;
+            float adjustedForceMultiplier =  katamari.rB.mass;
+            if (!katamari.isGrounded)
+            {
+                adjustedForceMultiplier *= katamari.AIRBORNE_FORCE_MULT;
+            } else
+            {
+                adjustedForceMultiplier *= katamari.FORCE_MULT;
+            }
             //TODO: increase torque and force in proportion to mass.
             katamari.rB.AddTorque(forwardInputMultiplier * adjustedTorqueMultiplier, input.y * adjustedTorqueMultiplier * Time.deltaTime, -lateralInputMultiplier * adjustedTorqueMultiplier);
             katamari.rB.AddForce(lateralInputMultiplier * adjustedForceMultiplier, upwardInputMultiplier, forwardInputMultiplier * adjustedForceMultiplier);

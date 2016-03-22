@@ -78,6 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\CollectibleObject.cs" />
+    <Compile Include="Assets\CollectibleObjectSpawner.cs" />
     <Compile Include="Assets\FollowKatamari.cs" />
     <Compile Include="Assets\Katamari.cs" />
     <Compile Include="Assets\KatamariEventManager.cs" />

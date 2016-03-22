@@ -10,8 +10,15 @@ namespace Klonamari
         
         public float volume; //honestly, volume should probably be calculated, depending on the mesh we're using. maybe just collider bounds size.
         public float density;
+        public float mass { get; private set; }
 
-        public void Detach(float mass, Katamari katamari)
+        void Start()
+        {
+            mass = volume * density;
+            rB.mass = mass;
+        }
+
+        public void Detach(Katamari katamari)
         {
             transform.parent = null;
             gameObject.layer = 8;
