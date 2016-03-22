@@ -130,9 +130,7 @@ namespace Klonamari
                         Vector3 direction = delta.normalized;
                         collectible.transform.position = collectible.transform.position - direction * distance;
 
-                        Debug.Log("distance: " + distance);
-                        //TODO: drag the object closer so that the center is on the sphere's surface.
-                        
+                        KatamariEventManager.Attach(collectible);
 
                         if (collectible.IsIrregular(sphere.radius)) //irregular objects will modify how our controls work. it might actually need to be a function of scale compared to our radius.
                         {

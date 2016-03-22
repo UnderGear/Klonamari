@@ -11,6 +11,7 @@ namespace Klonamari
         public float volume { get; private set; } //honestly, volume should probably be calculated, depending on the mesh we're using. maybe just collider bounds size.
         public float density;
         public float mass { get; private set; }
+        public string displayName;
 
         void Start()
         {

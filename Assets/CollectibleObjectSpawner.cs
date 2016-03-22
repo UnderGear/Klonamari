@@ -7,8 +7,7 @@ namespace Klonamari
         public Transform attachRoot;
         public GameObject[] prefabs;
 
-        public int minSpawn;
-        public int maxSpawn;
+        public int toSpawn;
 
         public int minX, maxX, minZ, maxZ;
 
@@ -28,13 +27,6 @@ namespace Klonamari
             {
                 minZ = maxZ;
             }
-
-            if (minSpawn > maxSpawn)
-            {
-                minSpawn = maxSpawn;
-            }
-
-            int toSpawn = Random.Range(minSpawn, maxSpawn);
 
             for (int i = 0; i < toSpawn; ++i)
             {
