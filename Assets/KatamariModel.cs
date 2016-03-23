@@ -26,6 +26,11 @@ namespace Klonamari
         {
             ++collectedObjects;
             KatamariEventManager.ObjectivesUpdated(this);
+
+            if (collectedObjects >= totalCollectibleObjects)
+            {
+                KatamariEventManager.Victory(this);
+            }
         }
 
         public void BrokenOff(CollectibleObject broken)

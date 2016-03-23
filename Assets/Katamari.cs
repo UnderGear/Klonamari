@@ -36,13 +36,11 @@ namespace Klonamari
         void OnEnable()
         {
             KatamariEventManager.OnContact += OnContact;
-            KatamariEventManager.OnDetach += OnDetach;
         }
 
         void OnDisable()
         {
             KatamariEventManager.OnContact -= OnContact;
-            KatamariEventManager.OnDetach -= OnDetach;
         }
         
         void Start()
@@ -160,14 +158,14 @@ namespace Klonamari
 
         void OnDetach(CollectibleObject detached)
         {
-            Debug.Log("detach");
+            //Debug.Log("detach");
             volume -= detached.volume;
             RecalculateRadius();
             mass -= detached.mass;
 
             detached.Detach(this);
-            
-            
+
+            KatamariEventManager.Detach(detached);
             //TODO: we should update our model, I guess. mass and uhh...diameter? changed.
         }
 

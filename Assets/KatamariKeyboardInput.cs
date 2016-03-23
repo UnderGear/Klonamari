@@ -6,17 +6,13 @@ namespace Klonamari
     {
         //TODO: torque probably needs to be updated as the mass of the Katamari changes.
         //TODO: should we switch from applying torque to just applying forces to the outside of the sphere?
-        
-
-        private bool anyMove;
-
+       
         public override void Update(Katamari katamari) //we need to scale our forces based on our mass.
         {
             /*if (!katamari.isGrounded && katamari.defaultContacts <= 0)
             {
                 return;
             }*/
-            anyMove = false;
 
             input.Set(0, 0, 0);
 

@@ -48,5 +48,16 @@ namespace Klonamari
                 OnObjectivesUpdated(model);
             }
         }
+
+        public delegate void VictoryAction(KatamariModel model);
+        public static event VictoryAction OnVictory;
+
+        public static void Victory(KatamariModel model)
+        {
+            if (OnVictory != null)
+            {
+                OnVictory(model);
+            }
+        }
     }
 }
