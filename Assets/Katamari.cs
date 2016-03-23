@@ -5,6 +5,8 @@ namespace Klonamari
 {
     public class Katamari : MonoBehaviour
     {
+        private const float ONE_THIRD = 1.0f / 3.0f;
+
         public float ROLL_UP_MAX_RATIO = 0.25f; //NOTE that this isn't talking about rolling up stairs. the game's lingo uses this for collection.
 
         public float TORQUE_MULT = 1500.0f;
@@ -46,9 +48,9 @@ namespace Klonamari
         void Start()
         {
 #if UNITY_EDITOR
-            katamariInput = new KatamariKeyboardInput();
+            katamariInput = new KatamariJoystickInput();//*/new KatamariKeyboardInput();
 #endif
-            //TODO: other input implementations for mobile, etc. we could also build a way for the user to select them once we have more.
+            //TODO: other input implementations for mobile, joystick, eye tracking, etc. we could also build a way for the user to select them once we have more.
             
             rB = GetComponent<Rigidbody>();
             sphere = GetComponent<SphereCollider>();
@@ -171,7 +173,7 @@ namespace Klonamari
 
         private void RecalculateRadius()
         {
-            sphere.radius = Mathf.Pow((3 * volume) / (4 * Mathf.PI), (1.0f / 3.0f));
+            sphere.radius = Mathf.Pow((3 * volume) / (4 * Mathf.PI), ONE_THIRD);
             int irregulars = irregularCollectibles.Count;
             for (int i = irregulars - 1; i >= 0; --i)
             {

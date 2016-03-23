@@ -8,7 +8,7 @@ namespace Klonamari
 
         public abstract void Update(Katamari katamari);
 
-        //TODO: we can make these public properties for editor tweaks.
+        //TODO: let's do something with the awful camera. it needs to rotate about our y axis when we turn. forces need to be applied from its perspective.
 
         protected virtual void ProcessInput(Katamari katamari)
         {
