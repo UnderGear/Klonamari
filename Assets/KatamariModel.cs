@@ -1,5 +1,4 @@
-﻿
-namespace Klonamari
+﻿namespace Klonamari
 {
     public class KatamariModel
     {
@@ -12,8 +11,6 @@ namespace Klonamari
             KatamariEventManager.OnAttach += CollectObject;
             KatamariEventManager.OnDetach += BrokenOff;
         }
-
-
 
         public void Reset(int totalCollectibleObjects)
         {

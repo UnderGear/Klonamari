@@ -59,5 +59,16 @@ namespace Klonamari
                 OnVictory(model);
             }
         }
+
+        public delegate void InputChangedAction(KatamariInput input);
+        public static event InputChangedAction OnInputChanged;
+
+        public static void InputChanged(KatamariInput input)
+        {
+            if (OnInputChanged != null)
+            {
+                OnInputChanged(input);
+            }
+        }
     }
 }

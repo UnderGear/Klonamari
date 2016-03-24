@@ -4,7 +4,9 @@ namespace Klonamari
 {
     public class KatamariKeyboardInput : KatamariInput
     {
-        public override void Update(Katamari katamari)
+        private Vector3 input = new Vector3();
+
+        public Vector3 Update(Katamari katamari)
         {
             input.Set(0, 0, 0);
 
@@ -16,7 +18,7 @@ namespace Klonamari
 
             input.y = Input.GetAxis("Rotate");
 
-            ProcessInput(katamari);
+            return input;
         }
     }
 }

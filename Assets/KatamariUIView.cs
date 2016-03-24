@@ -20,7 +20,7 @@ namespace Klonamari
         public void SetCollected(CollectibleObject collected)
         {
             collectedText.text = string.Format(collectedFormat, collected.displayName);
-            //TODO: we should set up a spinning prefab for this guy.
+            //TODO: we should set up a spinning prefab for this guy, like in the actual game.
             if (fade != null)
             {
                 StopCoroutine(fade);

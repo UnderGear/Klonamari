@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Klonamari
 {
@@ -18,15 +19,8 @@ namespace Klonamari
                 return;
             }
 
-            if (minX > maxX)
-            {
-                minX = maxX;
-            }
-
-            if (minZ > maxZ)
-            {
-                minZ = maxZ;
-            }
+            Assert.IsTrue(maxX > minX);
+            Assert.IsTrue(maxZ > minZ);
 
             for (int i = 0; i < toSpawn; ++i)
             {

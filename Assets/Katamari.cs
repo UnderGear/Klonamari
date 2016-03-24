@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace Klonamari
 {
@@ -34,28 +35,65 @@ namespace Klonamari
 
         private List<CollectibleObject> collectibles = new List<CollectibleObject>();
         private List<CollectibleObject> irregularCollectibles = new List<CollectibleObject>(); //TODO, maybe use a Dictionary. or sort this list as things are inserted.
-
+        
         void OnEnable()
         {
-            KatamariEventManager.OnContact += OnContact;
+            //A note here, I'd rather pull all of this stuff up into a Context class and keep all platform dependent compilation up there.
+            //the Context class could fill out either a Service Locator or set up bindings for DI. This class would just ask for an instance
+            //of KatamariInput from injection or from the locator instead of calling new here.
+#if UNITY_EDITOR || UNITY_STANDALONE
+            SetInput(new KatamariKeyboardInput());
+#elif UNITY_XBOX360 || UNITY_XBOXONE
+            SetInput(new KatamariJoystickInput());
+#endif
+            //TODO: other input implementations for mobile, joystick, eye tracking, etc. we could also build a way for the user to select them once we have more.
+
+            KatamariEventManager.OnInputChanged += SetInput;
         }
 
         void OnDisable()
         {
-            KatamariEventManager.OnContact -= OnContact;
+            KatamariEventManager.OnInputChanged -= SetInput;
         }
-        
+
         void Start()
         {
-#if UNITY_EDITOR
-            katamariInput = new KatamariJoystickInput();//*/new KatamariKeyboardInput();
-#endif
-            //TODO: other input implementations for mobile, joystick, eye tracking, etc. we could also build a way for the user to select them once we have more.
-            
             rB = GetComponent<Rigidbody>();
             sphere = GetComponent<SphereCollider>();
             volume = 4.0f / 3.0f * Mathf.PI * Mathf.Pow(sphere.radius, 3); //initial volume calculated by radius of the sphere.
             rB.mass = mass = density * volume;
+        }
+
+        private void SetInput(KatamariInput input)
+        {
+            katamariInput = input;
+        }
+
+        private void ProcessInput(Vector3 input)
+        {
+            float forwardInputMultiplier = input.z * Time.deltaTime;
+            float lateralInputMultiplier = input.x * Time.deltaTime;
+            float upwardInputMultiplier = 0.0f;
+
+            if ((Mathf.Abs(forwardInputMultiplier) > float.Epsilon || Mathf.Abs(lateralInputMultiplier) > float.Epsilon) && defaultContacts > 0)
+            {
+                //Debug.Log("up");
+                upwardInputMultiplier += Time.deltaTime * UPWARD_FORCE_MULT; //* 1.0f, you know.
+            }
+
+            float adjustedTorqueMultiplier = TORQUE_MULT * rB.mass;
+            float adjustedForceMultiplier = rB.mass;
+            if (!isGrounded)
+            {
+                adjustedForceMultiplier *= AIRBORNE_FORCE_MULT;
+            }
+            else
+            {
+                adjustedForceMultiplier *= FORCE_MULT;
+            }
+
+            rB.AddTorque(forwardInputMultiplier * adjustedTorqueMultiplier, input.y * adjustedTorqueMultiplier * Time.deltaTime, -lateralInputMultiplier * adjustedTorqueMultiplier);
+            rB.AddForce(lateralInputMultiplier * adjustedForceMultiplier, upwardInputMultiplier, forwardInputMultiplier * adjustedForceMultiplier);
         }
 
         // Update is called once per frame
@@ -63,7 +101,13 @@ namespace Klonamari
         {
             isGrounded = Physics.Raycast(transform.position, Vector3.down, sphere.radius + 0.01f);
 
-            katamariInput.Update(this);
+            Vector3 input = katamariInput.Update(this);
+            ProcessInput(input);
+
+
+            //TODO: let's do something with the awful camera. it needs to rotate about our y axis when we turn. forces need to be applied from its perspective.
+
+
 
             follow.UpdatePosition(this);
         }
@@ -75,16 +119,19 @@ namespace Klonamari
                 return;
             }
 
-            OnContact(collision);
+            bool rolledUp = OnContact(collision);
 
-            Collider hit = collision.rigidbody.GetComponent<Collider>();
-            float targetTop = hit.bounds.extents.y + collision.transform.position.y;
-            float sphereBottom = transform.position.y - sphere.radius;
-            if (collision.gameObject.layer == 8 && targetTop > sphereBottom && sphereBottom + STAIR_CLIMB_RATIO * sphere.radius > targetTop) //allowing a little cheat on sphere radius
+            if (!rolledUp)
             {
-                ++defaultContacts;
-                touchingClimbables.Add(collision.transform);
-                //Debug.Log("default contacts: " + defaultContacts);
+                Collider hit = collision.rigidbody.GetComponent<Collider>();
+                float targetTop = hit.bounds.extents.y + collision.transform.position.y;
+                float sphereBottom = transform.position.y - sphere.radius;
+                if (collision.gameObject.layer == 8 && targetTop > sphereBottom && sphereBottom + STAIR_CLIMB_RATIO * sphere.radius > targetTop) //allowing a little cheat on sphere radius
+                {
+                    ++defaultContacts;
+                    touchingClimbables.Add(collision.transform);
+                    //Debug.Log("default contacts: " + defaultContacts);
+                }
             }
         }
 
@@ -99,10 +146,11 @@ namespace Klonamari
             }
         }
 
-        void OnContact(Collision collision)
+        private bool OnContact(Collision collision)
         {
+            bool rolledUp = false;
             Transform t = collision.transform;
-
+            
             //Debug.Log("hit. v: " + (collision.relativeVelocity.magnitude) + ", layer: " + collision.gameObject.layer);
 
             CollectibleObject collectible = t.GetComponent<CollectibleObject>();
@@ -116,6 +164,7 @@ namespace Klonamari
                         //Debug.Log("attach");
 
                         collectible.collected = true;
+                        rolledUp = true;
                         collectible.gameObject.layer = 9;
 
                         t.parent = transform;
@@ -156,6 +205,7 @@ namespace Klonamari
                     }
                 }
             }
+            return rolledUp;
         }
 
         void OnDetach(CollectibleObject detached)

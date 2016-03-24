@@ -73,15 +73,18 @@
   <ItemGroup>
     <Compile Include="Assets\CollectibleObject.cs" />
     <Compile Include="Assets\CollectibleObjectSpawner.cs" />
+    <Compile Include="Assets\ControllerDetectionService.cs" />
     <Compile Include="Assets\FollowKatamari.cs" />
     <Compile Include="Assets\Katamari.cs" />
     <Compile Include="Assets\KatamariEventManager.cs" />
     <Compile Include="Assets\KatamariInput.cs" />
+    <Compile Include="Assets\KatamariDualThumbstickInput.cs" />
     <Compile Include="Assets\KatamariKeyboardInput.cs" />
     <Compile Include="Assets\KatamariMain.cs" />
     <Compile Include="Assets\KatamariModel.cs" />
     <Compile Include="Assets\KatamariUIMediator.cs" />
     <Compile Include="Assets\KatamariUIView.cs" />
+    <Compile Include="Assets\XboxControllerDetectionService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Standard Assets\Characters\FirstPersonCharacter\FirstPersonCharacterGuidelines.txt" />
