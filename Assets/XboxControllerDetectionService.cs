@@ -27,9 +27,8 @@ namespace Klonamari
 
         private void Poll()
         {
-            //this is seriously how you currently have to find out about controllers added/removed. I checked in ILSpy.
+            //this is seriously how you currently have to find out about controllers added/removed in Unity. I checked dug through with ILSpy a fair amount.
             //I had this code in Katamari.cs before, but it's so gross I pulled it out into this class instead and wrapped it in a service to be driven by KatamariMain.cs
-            //Unity has been talking about fixing Input for a long time
             string[] names = Input.GetJoystickNames();
             int nameCount = names != null ? names.Length : 0;
             bool xboxFound = false;
@@ -41,8 +40,7 @@ namespace Klonamari
                     break;
                 }
             }
-
-            //I'd prefer to change out a DI binding or Service in a Service Locator and then just send an empty event to have people respond.
+            
             if (xboxFound && !usingXboxController)
             {
                 KatamariEventManager.InputChanged(new KatamariDualThumbstickInput());

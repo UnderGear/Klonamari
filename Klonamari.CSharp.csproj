@@ -81,7 +81,7 @@
     <Compile Include="Assets\KatamariDualThumbstickInput.cs" />
     <Compile Include="Assets\KatamariKeyboardInput.cs" />
     <Compile Include="Assets\KatamariMain.cs" />
-    <Compile Include="Assets\KatamariModel.cs" />
+    <Compile Include="Assets\GameModel.cs" />
     <Compile Include="Assets\KatamariUIMediator.cs" />
     <Compile Include="Assets\KatamariUIView.cs" />
     <Compile Include="Assets\XboxControllerDetectionService.cs" />

@@ -38,10 +38,10 @@ namespace Klonamari
             }
         }
 
-        public delegate void ObjectivesUpdatedAction(KatamariModel model);
+        public delegate void ObjectivesUpdatedAction(GameModel model);
         public static event ObjectivesUpdatedAction OnObjectivesUpdated;
 
-        public static void ObjectivesUpdated(KatamariModel model)
+        public static void ObjectivesUpdated(GameModel model)
         {
             if (OnObjectivesUpdated != null)
             {
@@ -49,14 +49,25 @@ namespace Klonamari
             }
         }
 
-        public delegate void VictoryAction(KatamariModel model);
+        public delegate void VictoryAction(GameModel model);
         public static event VictoryAction OnVictory;
 
-        public static void Victory(KatamariModel model)
+        public static void Victory(GameModel model)
         {
             if (OnVictory != null)
             {
                 OnVictory(model);
+            }
+        }
+
+        public delegate void ResetGameAction();
+        public static event ResetGameAction OnResetGame;
+
+        public static void ResetGame()
+        {
+            if (OnResetGame != null)
+            {
+                OnResetGame();
             }
         }
 
@@ -69,6 +80,17 @@ namespace Klonamari
             {
                 OnInputChanged(input);
             }
+        }
+
+        public static void TearDown()
+        {
+            OnInputChanged = null;
+            OnResetGame = null;
+            OnVictory = null;
+            OnObjectivesUpdated = null;
+            OnDetach = null;
+            OnAttach = null;
+            OnContact = null;
         }
     }
 }

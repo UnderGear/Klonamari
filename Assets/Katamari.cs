@@ -6,6 +6,9 @@ namespace Klonamari
 {
     public class Katamari : MonoBehaviour
     {
+        private Vector3 startingPosition;
+        private float startingRadius;
+
         private const float ONE_THIRD = 1.0f / 3.0f;
 
         public float ROLL_UP_MAX_RATIO = 0.25f; //NOTE that this isn't talking about rolling up stairs. the game's lingo uses this for collection.
@@ -58,8 +61,6 @@ namespace Klonamari
 
         void Start()
         {
-            rB = GetComponent<Rigidbody>();
-            sphere = GetComponent<SphereCollider>();
             volume = 4.0f / 3.0f * Mathf.PI * Mathf.Pow(sphere.radius, 3); //initial volume calculated by radius of the sphere.
             rB.mass = mass = density * volume;
         }

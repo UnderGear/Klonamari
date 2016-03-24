@@ -15,6 +15,9 @@ namespace Klonamari
         public Text goalText;
         public string goalTextFormat = "{0}/{1}";
 
+        public GameObject victoryRoot;
+        public Button restartButton;
+
         private Coroutine fade;
 
         public void SetCollected(CollectibleObject collected)
@@ -34,9 +37,19 @@ namespace Klonamari
             collectedText.text = "";
         }
 
-        public void UpdateGoalText(KatamariModel model)
+        public void UpdateGoalText(GameModel model)
         {
             goalText.text = string.Format(goalTextFormat, model.collectedObjects, model.totalCollectibleObjects);
+        }
+
+        public void ShowVictory(GameModel model)
+        {
+            victoryRoot.SetActive(true);
+        }
+
+        public void HideVictory()
+        {
+            victoryRoot.SetActive(false);
         }
     }
 }

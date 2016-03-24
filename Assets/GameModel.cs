@@ -1,21 +1,17 @@
 ﻿namespace Klonamari
 {
-    public class KatamariModel
+    public class GameModel
     {
         public int totalCollectibleObjects;
         public int collectedObjects;
 
-        public KatamariModel(int totalCollectibleObjects)
+        public GameModel(int totalCollectibleObjects)
         {
-            Reset(totalCollectibleObjects);
+            this.totalCollectibleObjects = totalCollectibleObjects;
+            collectedObjects = 0;
             KatamariEventManager.OnAttach += CollectObject;
             KatamariEventManager.OnDetach += BrokenOff;
-        }
 
-        public void Reset(int totalCollectibleObjects)
-        {
-            collectedObjects = 0;
-            this.totalCollectibleObjects = totalCollectibleObjects;
             KatamariEventManager.ObjectivesUpdated(this);
         }
 

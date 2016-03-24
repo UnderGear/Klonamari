@@ -12,7 +12,7 @@ namespace Klonamari
 
         public int minX, maxX, minZ, maxZ;
 
-        void Start()
+        public void SpawnObjects()
         {
             if (prefabs == null || prefabs.Length == 0)
             {
