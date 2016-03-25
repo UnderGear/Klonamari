@@ -64,3 +64,4 @@ Temporary Items
 *.svd
 sysinfo.txt
 *.unitypackage
+*.pdb

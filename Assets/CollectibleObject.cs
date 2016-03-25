@@ -7,6 +7,8 @@ namespace Klonamari
     {
         public bool collected;
         public Rigidbody rB;
+        public BoxCollider uncollectedCollider;
+        public Collider collectedCollider; //intended to be a rounded collider
         
         public float volume { get; private set; } //honestly, volume should probably be calculated, depending on the mesh we're using. maybe just collider bounds size.
         public float density;
@@ -15,10 +17,17 @@ namespace Klonamari
 
         void Start()
         {
-            Vector3 size = GetComponent<Collider>().bounds.size;
+            Vector3 size = transform.lossyScale;
+            Debug.Log("size: " + size.ToString(), this.gameObject);
             volume = size.x * size.y * size.z;
             mass = volume * density;
             rB.mass = mass;
+        }
+
+        public void Attach(Katamari katamari)
+        {
+            uncollectedCollider.enabled = false;
+            collectedCollider.enabled = true;
         }
 
         public void Detach(Katamari katamari)
@@ -35,6 +44,9 @@ namespace Klonamari
 
             rB.AddExplosionForce(400.0f, katamari.transform.position, katamari.sphere.radius, 50.0f);
 
+            collectedCollider.enabled = false;
+            uncollectedCollider.enabled = true;
+
             StartCoroutine(DoEnableCollect());
         }
 
@@ -46,7 +58,7 @@ namespace Klonamari
 
         public bool IsIrregular(float radius)
         {
-            float magnitude = GetComponent<Collider>().bounds.size.magnitude;
+            float magnitude = transform.lossyScale.magnitude;
             return radius < magnitude;
         }
     }
