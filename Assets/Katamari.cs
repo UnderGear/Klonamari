@@ -38,7 +38,9 @@ namespace Klonamari
 
         private List<CollectibleObject> collectibles = new List<CollectibleObject>();
         private List<CollectibleObject> irregularCollectibles = new List<CollectibleObject>(); //TODO, maybe use a Dictionary. or sort this list as things are inserted.
-        
+
+        private Vector3 userInput = Vector3.zero;
+
         void OnEnable()
         {
             //A note here, I'd rather pull all of this stuff up into a Context class and keep all platform dependent compilation up there.
@@ -72,14 +74,14 @@ namespace Klonamari
 
         private void ProcessInput(Vector3 input)
         {
-            float forwardInputMultiplier = input.z * Time.deltaTime;
-            float lateralInputMultiplier = input.x * Time.deltaTime;
+            float forwardInputMultiplier = input.z;
+            float lateralInputMultiplier = input.x;
             float upwardInputMultiplier = 0.0f;
 
             if ((Mathf.Abs(forwardInputMultiplier) > float.Epsilon || Mathf.Abs(lateralInputMultiplier) > float.Epsilon) && defaultContacts > 0)
             {
                 //Debug.Log("up");
-                upwardInputMultiplier += Time.deltaTime * UPWARD_FORCE_MULT; //* 1.0f, you know.
+                upwardInputMultiplier += UPWARD_FORCE_MULT; //* 1.0f, you know.
             }
 
             float adjustedTorqueMultiplier = TORQUE_MULT * rB.mass;
@@ -93,21 +95,22 @@ namespace Klonamari
                 adjustedForceMultiplier *= FORCE_MULT;
             }
 
-            rB.AddTorque(forwardInputMultiplier * adjustedTorqueMultiplier, input.y * adjustedTorqueMultiplier * Time.deltaTime, -lateralInputMultiplier * adjustedTorqueMultiplier);
+            rB.AddTorque(forwardInputMultiplier * adjustedTorqueMultiplier, input.y * adjustedTorqueMultiplier, -lateralInputMultiplier * adjustedTorqueMultiplier);
             rB.AddForce(lateralInputMultiplier * adjustedForceMultiplier, upwardInputMultiplier, forwardInputMultiplier * adjustedForceMultiplier);
         }
+        
+        void FixedUpdate()
+        {
+            ProcessInput(userInput);
+        }
 
-        // Update is called once per frame
         void Update()
         {
+
             isGrounded = Physics.Raycast(transform.position, Vector3.down, sphere.radius + 0.01f);
 
-            Vector3 input = katamariInput.Update(this);
-            ProcessInput(input);
-
-
+            userInput = katamariInput.Update(this);
             //TODO: let's do something with the awful camera. it needs to rotate about our y axis when we turn. forces need to be applied from its perspective.
-
 
 
             follow.UpdatePosition(this);

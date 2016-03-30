@@ -18,7 +18,6 @@ namespace Klonamari
         void Start()
         {
             Vector3 size = transform.lossyScale;
-            Debug.Log("size: " + size.ToString(), this.gameObject);
             volume = size.x * size.y * size.z;
             mass = volume * density;
             rB.mass = mass;
