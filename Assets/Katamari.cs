@@ -19,6 +19,8 @@ namespace Klonamari
         public float UPWARD_FORCE_MULT = 1000.0f;
         public float STAIR_CLIMB_RATIO = 2.15f; // you can climb sheer walls STAIR_CLIMB_RATIO * radius above initial contact. if it's taller than that, you're falling down.
 
+        public float ROTATION_MULTIPLIER;
+
         private KatamariInput katamariInput;
         public FollowKatamari follow;
 
@@ -32,6 +34,11 @@ namespace Klonamari
 
         public bool isGrounded;
         public int defaultContacts
+        {
+            get; private set;
+        }
+
+        public float rotationY
         {
             get; private set;
         }
@@ -71,7 +78,7 @@ namespace Klonamari
         {
             katamariInput = input;
         }
-
+        
         private void ProcessInput(Vector3 input)
         {
             float forwardInputMultiplier = input.z;
@@ -94,9 +101,12 @@ namespace Klonamari
             {
                 adjustedForceMultiplier *= FORCE_MULT;
             }
+            Vector3 currentForward = new Vector3(0, rotationY, 0);
 
-            rB.AddTorque(forwardInputMultiplier * adjustedTorqueMultiplier, input.y * adjustedTorqueMultiplier, -lateralInputMultiplier * adjustedTorqueMultiplier);
-            rB.AddForce(lateralInputMultiplier * adjustedForceMultiplier, upwardInputMultiplier, forwardInputMultiplier * adjustedForceMultiplier);
+            Vector3 torque = new Vector3(forwardInputMultiplier * adjustedTorqueMultiplier, input.y * adjustedTorqueMultiplier, -lateralInputMultiplier * adjustedTorqueMultiplier);
+            Vector3 force = new Vector3(lateralInputMultiplier * adjustedForceMultiplier, upwardInputMultiplier, forwardInputMultiplier * adjustedForceMultiplier);
+            rB.AddTorque(Quaternion.Euler(currentForward) * torque);
+            rB.AddForce(Quaternion.Euler(currentForward) * force);
         }
         
         void FixedUpdate()
@@ -106,13 +116,11 @@ namespace Klonamari
 
         void Update()
         {
-
             isGrounded = Physics.Raycast(transform.position, Vector3.down, sphere.radius + 0.01f);
 
             userInput = katamariInput.Update(this);
-            //TODO: let's do something with the awful camera. it needs to rotate about our y axis when we turn. forces need to be applied from its perspective.
-
-
+            rotationY += userInput.y * Time.deltaTime * ROTATION_MULTIPLIER;
+            
             follow.UpdatePosition(this);
         }
 
