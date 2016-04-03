@@ -18,12 +18,16 @@ namespace Klonamari
         public GameObject victoryRoot;
         public Button restartButton;
 
+        public CollectedObjectDisplay collectedObjectDisplay;
+
         private Coroutine fade;
 
         public void SetCollected(CollectibleObject collected)
         {
             collectedText.text = string.Format(collectedFormat, collected.displayName);
-            //TODO: we should set up a spinning prefab for this guy, like in the actual game.
+            
+            collectedObjectDisplay.Init(collected.GetMeshFilter().sharedMesh, collected.GetMaterial(), collected.transform.localScale);
+
             if (fade != null)
             {
                 StopCoroutine(fade);
@@ -34,6 +38,9 @@ namespace Klonamari
         private IEnumerator Fade()
         {
             yield return new WaitForSeconds(timeoutSeconds);
+
+            //TODO: clear the collected object
+            collectedObjectDisplay.Clear();
             collectedText.text = "";
         }
 

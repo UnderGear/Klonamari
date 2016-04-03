@@ -60,5 +60,15 @@ namespace Klonamari
             float magnitude = transform.lossyScale.magnitude;
             return radius < magnitude;
         }
+
+        public MeshFilter GetMeshFilter()
+        {
+            return GetComponent<MeshFilter>();
+        }
+
+        public Material GetMaterial()
+        {
+            return GetComponent<MeshRenderer>().material;
+        }
     }
 }
