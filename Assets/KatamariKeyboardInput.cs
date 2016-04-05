@@ -16,7 +16,7 @@ namespace Klonamari
 
             input.Normalize();
 
-            input.y = Input.GetAxis("Rotate");
+            input.y = -Input.GetAxis("Rotate");
 
             return input;
         }

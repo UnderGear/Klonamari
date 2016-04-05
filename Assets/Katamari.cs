@@ -18,6 +18,7 @@ namespace Klonamari
         public float AIRBORNE_FORCE_MULT = 250.0f;
         public float UPWARD_FORCE_MULT = 1000.0f;
         public float STAIR_CLIMB_RATIO = 2.15f; // you can climb sheer walls STAIR_CLIMB_RATIO * radius above initial contact. if it's taller than that, you're falling down.
+        public float BREAK_OFF_THRESHOLD = 10.0f;
 
         public float ROTATION_MULTIPLIER;
 
@@ -28,7 +29,6 @@ namespace Klonamari
         public SphereCollider sphere;
         private float volume;
         public float density;
-        public float mass { get; private set; }
 
         private List<Transform> touchingClimbables = new List<Transform>();
 
@@ -71,7 +71,7 @@ namespace Klonamari
         void Start()
         {
             volume = 4.0f / 3.0f * Mathf.PI * Mathf.Pow(sphere.radius, 3); //initial volume calculated by radius of the sphere.
-            rB.mass = mass = density * volume;
+            rB.mass = density * volume;
         }
 
         private void SetInput(KatamariInput input)
@@ -87,12 +87,11 @@ namespace Klonamari
 
             if ((Mathf.Abs(forwardInputMultiplier) > float.Epsilon || Mathf.Abs(lateralInputMultiplier) > float.Epsilon) && defaultContacts > 0)
             {
-                //Debug.Log("up");
                 upwardInputMultiplier += UPWARD_FORCE_MULT; //* 1.0f, you know.
             }
 
             float adjustedTorqueMultiplier = TORQUE_MULT * rB.mass;
-            float adjustedForceMultiplier = rB.mass;
+            float adjustedForceMultiplier = FORCE_MULT * rB.mass;
             if (!isGrounded)
             {
                 adjustedForceMultiplier *= AIRBORNE_FORCE_MULT;
@@ -168,31 +167,30 @@ namespace Klonamari
             CollectibleObject collectible = t.GetComponent<CollectibleObject>();
             if (collectible)
             {
-                if (collectible.mass < mass * ROLL_UP_MAX_RATIO)
+                if (collectible.mass < rB.mass * ROLL_UP_MAX_RATIO)
                 {
                     if (!collectible.collected)
                     {
                         //TODO: we should update our model, I guess. mass and uhh...diameter? changed. notify that we collected the new object
                         //Debug.Log("attach");
-
                         collectible.collected = true;
                         rolledUp = true;
                         collectible.gameObject.layer = 9;
 
+                        collectible.Attach(this);
                         t.parent = transform;
 
                         volume += collectible.volume;
-                        mass += collectible.mass;
+                        
                         RecalculateRadius();
                         collectibles.Add(collectible);
 
                         Vector3 delta = (collectible.transform.position - transform.position);
                         float distance = delta.magnitude - sphere.radius;
                         Vector3 direction = delta.normalized;
+                        
                         collectible.transform.position = collectible.transform.position - direction * distance;
-
-                        collectible.Attach(this);
-
+                        
                         KatamariEventManager.Attach(collectible);
 
                         if (collectible.IsIrregular(sphere.radius)) //irregular objects will modify how our controls work. it might actually need to be a function of scale compared to our radius.
@@ -201,6 +199,8 @@ namespace Klonamari
                             irregularCollectibles.Add(collectible);
                         }
                         else {
+                            rB.mass += collectible.rB.mass;
+                            collectible.rB.mass = 0;
                             collectible.rB.detectCollisions = false;
                             collectible.rB.isKinematic = true;
                         }
@@ -209,7 +209,7 @@ namespace Klonamari
                 else
                 {
                     float magnitude = collision.relativeVelocity.magnitude;
-                    while (magnitude >= 7.0f && collectibles.Count > 0)
+                    while (magnitude >= BREAK_OFF_THRESHOLD && collectibles.Count > 0)
                     {
                         CollectibleObject toRemove = collectibles[collectibles.Count - 1];
                         collectibles.RemoveAt(collectibles.Count - 1);
@@ -224,10 +224,14 @@ namespace Klonamari
 
         void OnDetach(CollectibleObject detached)
         {
+            if (!detached.IsIrregular(sphere.radius))
+            {
+                rB.mass -= detached.mass;
+            }
+
             //Debug.Log("detach");
             volume -= detached.volume;
             RecalculateRadius();
-            mass -= detached.mass;
 
             detached.Detach(this);
 
@@ -246,10 +250,14 @@ namespace Klonamari
                 {
                     irregularCollectibles.RemoveAt(i);
 
-                    collectible.rB = collectible.gameObject.AddComponent<Rigidbody>();
+                    if (collectible.rB == null)
+                    {
+                        collectible.rB = collectible.gameObject.AddComponent<Rigidbody>();
+                    }
                     collectible.rB.detectCollisions = false;
                     collectible.rB.isKinematic = true;
-                    collectible.rB.mass = collectible.volume * collectible.density;
+                    collectible.rB.mass = 0;//collectible.volume * collectible.density;
+                    rB.mass += collectible.rB.mass;
                 }
             }
 

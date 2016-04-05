@@ -36,8 +36,6 @@ namespace Klonamari
                 input.x = (leftHorizontal + rightHorizontal) / 2.0f;
             }
 
-            input.Normalize();
-
             if (leftVertical > rightVertical && leftVertical > 0) //turn right
             {
                 input.y = (leftVertical - rightVertical) / 2.0f;
