@@ -23,7 +23,7 @@ namespace Klonamari
         public float ROTATION_MULTIPLIER;
 
         private KatamariInput katamariInput;
-        public FollowKatamari follow;
+        public CameraBoom follow;
 
         public Rigidbody rB;
         public SphereCollider sphere;
@@ -44,34 +44,36 @@ namespace Klonamari
         }
 
         private List<CollectibleObject> collectibles = new List<CollectibleObject>();
-        private List<CollectibleObject> irregularCollectibles = new List<CollectibleObject>(); //TODO, maybe use a Dictionary. or sort this list as things are inserted.
+        private List<CollectibleObject> irregularCollectibles = new List<CollectibleObject>();
 
         private Vector3 userInput = Vector3.zero;
 
         void OnEnable()
         {
-            //A note here, I'd rather pull all of this stuff up into a Context class and keep all platform dependent compilation up there.
+            //A note here, I'd rather pull all of this stuff up into a Context class and keep all platform-dependent compilation up there.
             //the Context class could fill out either a Service Locator or set up bindings for DI. This class would just ask for an instance
             //of KatamariInput from injection or from the locator instead of calling new here.
 #if UNITY_EDITOR || UNITY_STANDALONE
-            SetInput(new KatamariKeyboardInput());
+            SetInput(new KeyboardInput());
 #elif UNITY_XBOX360 || UNITY_XBOXONE
             SetInput(new KatamariJoystickInput());
 #endif
-            //TODO: other input implementations for mobile, joystick, eye tracking, etc. we could also build a way for the user to select them once we have more.
+            //other input implementations for mobile, joystick, eye tracking, etc. we could also build a way for the user to select them once we have more.
 
-            KatamariEventManager.OnInputChanged += SetInput;
+            EventManager.OnInputChanged += SetInput;
         }
 
         void OnDisable()
         {
-            KatamariEventManager.OnInputChanged -= SetInput;
+            EventManager.OnInputChanged -= SetInput;
         }
 
         void Start()
         {
             volume = 4.0f / 3.0f * Mathf.PI * Mathf.Pow(sphere.radius, 3); //initial volume calculated by radius of the sphere.
             rB.mass = density * volume;
+
+            follow.Init(this);
         }
 
         private void SetInput(KatamariInput input)
@@ -85,21 +87,14 @@ namespace Klonamari
             float lateralInputMultiplier = input.x;
             float upwardInputMultiplier = 0.0f;
 
+            //add an upward force if we're in contact with something we can climb.
             if ((Mathf.Abs(forwardInputMultiplier) > float.Epsilon || Mathf.Abs(lateralInputMultiplier) > float.Epsilon) && defaultContacts > 0)
             {
-                upwardInputMultiplier += UPWARD_FORCE_MULT; //* 1.0f, you know.
+                upwardInputMultiplier += UPWARD_FORCE_MULT;
             }
 
             float adjustedTorqueMultiplier = TORQUE_MULT * rB.mass;
-            float adjustedForceMultiplier = FORCE_MULT * rB.mass;
-            if (!isGrounded)
-            {
-                adjustedForceMultiplier *= AIRBORNE_FORCE_MULT;
-            }
-            else
-            {
-                adjustedForceMultiplier *= FORCE_MULT;
-            }
+            float adjustedForceMultiplier = rB.mass * (isGrounded ? FORCE_MULT : AIRBORNE_FORCE_MULT);
             Vector3 currentForward = new Vector3(0, rotationY, 0);
 
             Vector3 torque = new Vector3(forwardInputMultiplier * adjustedTorqueMultiplier, input.y * adjustedTorqueMultiplier, -lateralInputMultiplier * adjustedTorqueMultiplier);
@@ -137,23 +132,20 @@ namespace Klonamari
                 Collider hit = collision.rigidbody.GetComponent<Collider>();
                 float targetTop = hit.bounds.extents.y + collision.transform.position.y;
                 float sphereBottom = transform.position.y - sphere.radius;
-                if (collision.gameObject.layer == 8 && targetTop > sphereBottom && sphereBottom + STAIR_CLIMB_RATIO * sphere.radius > targetTop) //allowing a little cheat on sphere radius
+                if (collision.gameObject.layer == 8 && targetTop > sphereBottom && sphereBottom + STAIR_CLIMB_RATIO * sphere.radius > targetTop)
                 {
                     ++defaultContacts;
                     touchingClimbables.Add(collision.transform);
-                    //Debug.Log("default contacts: " + defaultContacts);
                 }
             }
         }
 
         void OnCollisionExit(Collision collision)
         {
-            //Debug.Log("exit");
             if (touchingClimbables.Contains(collision.transform))
             {
                 --defaultContacts;
                 touchingClimbables.Remove(collision.transform);
-                //Debug.Log("default contacts: " + defaultContacts);
             }
         }
 
@@ -161,8 +153,6 @@ namespace Klonamari
         {
             bool rolledUp = false;
             Transform t = collision.transform;
-            
-            //Debug.Log("hit. v: " + (collision.relativeVelocity.magnitude) + ", layer: " + collision.gameObject.layer);
 
             CollectibleObject collectible = t.GetComponent<CollectibleObject>();
             if (collectible)
@@ -171,8 +161,7 @@ namespace Klonamari
                 {
                     if (!collectible.collected)
                     {
-                        //TODO: we should update our model, I guess. mass and uhh...diameter? changed. notify that we collected the new object
-                        //Debug.Log("attach");
+                        //collect the thing we hit!
                         collectible.collected = true;
                         rolledUp = true;
                         collectible.gameObject.layer = 9;
@@ -181,8 +170,8 @@ namespace Klonamari
                         t.parent = transform;
 
                         volume += collectible.volume;
-                        
                         RecalculateRadius();
+
                         collectibles.Add(collectible);
 
                         Vector3 delta = (collectible.transform.position - transform.position);
@@ -191,9 +180,10 @@ namespace Klonamari
                         
                         collectible.transform.position = collectible.transform.position - direction * distance;
                         
-                        KatamariEventManager.Attach(collectible);
+                        EventManager.Attach(collectible, sphere.radius * 2);
 
-                        if (collectible.IsIrregular(sphere.radius)) //irregular objects will modify how our controls work. it might actually need to be a function of scale compared to our radius.
+                        //large or irregular objects will make our katamari bounce differently until it grows large enough
+                        if (collectible.IsIrregular(sphere.radius))
                         {
                             Destroy(collectible.rB);
                             irregularCollectibles.Add(collectible);
@@ -208,12 +198,11 @@ namespace Klonamari
                 }
                 else
                 {
+                    //decide how many objects to break off, then break them off.
                     float magnitude = collision.relativeVelocity.magnitude;
                     while (magnitude >= BREAK_OFF_THRESHOLD && collectibles.Count > 0)
                     {
                         CollectibleObject toRemove = collectibles[collectibles.Count - 1];
-                        collectibles.RemoveAt(collectibles.Count - 1);
-
                         OnDetach(toRemove);
                         magnitude -= 4.0f;
                     }
@@ -224,24 +213,31 @@ namespace Klonamari
 
         void OnDetach(CollectibleObject detached)
         {
+            //this could be improved by using a Dictionary and adding some sort of id to collectibles.
+            collectibles.Remove(detached);
+            if (irregularCollectibles.Contains(detached))
+            {
+                irregularCollectibles.Remove(detached);
+            }
+
             if (!detached.IsIrregular(sphere.radius))
             {
                 rB.mass -= detached.mass;
             }
 
-            //Debug.Log("detach");
             volume -= detached.volume;
             RecalculateRadius();
 
             detached.Detach(this);
 
-            KatamariEventManager.Detach(detached);
-            //TODO: we should update our model, I guess. mass and uhh...diameter? changed.
+            EventManager.Detach(detached, sphere.radius * 2);
         }
 
         private void RecalculateRadius()
         {
             sphere.radius = Mathf.Pow((3 * volume) / (4 * Mathf.PI), ONE_THIRD);
+
+            //check to see if we're big enough for irregular objects to stop making us bounce irregularly
             int irregulars = irregularCollectibles.Count;
             for (int i = irregulars - 1; i >= 0; --i)
             {
@@ -256,33 +252,10 @@ namespace Klonamari
                     }
                     collectible.rB.detectCollisions = false;
                     collectible.rB.isKinematic = true;
-                    collectible.rB.mass = 0;//collectible.volume * collectible.density;
-                    rB.mass += collectible.rB.mass;
+                    collectible.rB.mass = 0;
+                    rB.mass += collectible.mass;
                 }
             }
-
-            //TODO: let's see if we should combine some meshes.
-            int collectibleCount = collectibles.Count;
-            if (collectibleCount >= 40)
-            {
-                CombineCollectibles();
-            }
-        }
-
-        private void CombineCollectibles()
-        {
-            Debug.Log("combine");
-            /*int collectibleCount = collectibles.Count;
-            for (int i = collectibleCount - 1; i <= 0; --i)
-            {
-                CollectibleObject collectible = collectibles[i];
-                collectibles.RemoveAt(i);
-
-                
-            }*/
-
-            //TODO: combine?
-            //GetComponent<Mesh>().CombineMeshes()
         }
     }
 }

@@ -41,6 +41,7 @@ namespace Klonamari
             rB.isKinematic = false;
             rB.detectCollisions = true;
 
+            //arbitrary explosion force to send stuff flying away a bit
             rB.AddExplosionForce(400.0f, katamari.transform.position, katamari.sphere.radius, 50.0f);
 
             collectedCollider.enabled = false;

@@ -2,7 +2,7 @@
 
 namespace Klonamari
 {
-    public class KatamariKeyboardInput : KatamariInput
+    public class KeyboardInput : KatamariInput
     {
         private Vector3 input = new Vector3();
 

@@ -20,10 +20,13 @@ namespace Klonamari
 
         public CollectedObjectDisplay collectedObjectDisplay;
 
+        public GameObject collectedRoot;
+
         private Coroutine fade;
 
         public void SetCollected(CollectibleObject collected)
         {
+            collectedRoot.SetActive(true);
             collectedText.text = string.Format(collectedFormat, collected.displayName);
             
             collectedObjectDisplay.Init(collected.GetMeshFilter().sharedMesh, collected.GetMaterial(), collected.transform.localScale);
@@ -39,17 +42,17 @@ namespace Klonamari
         {
             yield return new WaitForSeconds(timeoutSeconds);
 
-            //TODO: clear the collected object
             collectedObjectDisplay.Clear();
             collectedText.text = "";
+            collectedRoot.SetActive(false);
         }
 
-        public void UpdateGoalText(GameModel model)
+        public void UpdateGoalText(int collected, int total)
         {
-            goalText.text = string.Format(goalTextFormat, model.collectedObjects, model.totalCollectibleObjects);
+            goalText.text = string.Format(goalTextFormat, collected, total);
         }
 
-        public void ShowVictory(GameModel model)
+        public void ShowVictory()
         {
             victoryRoot.SetActive(true);
         }

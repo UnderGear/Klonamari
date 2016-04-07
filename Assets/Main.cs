@@ -3,31 +3,30 @@ using UnityEngine.SceneManagement;
 
 namespace Klonamari
 {
-    public class KatamariMain : MonoBehaviour //TODO: make this into a ScriptableObject?
+    public class Main : MonoBehaviour //TODO: make this into a ScriptableObject?
     {
         //fine. we'll go with a singleton for now.
-        private static KatamariMain Instance;
-        public static KatamariMain GetInstance()
+        private static Main Instance;
+        public static Main GetInstance()
         {
             return Instance;
         }
         
         void OnEnable()
         {
-            KatamariEventManager.OnResetGame += Reset;
+            EventManager.OnResetGame += Reset;
         }
 
         void OnDisable()
         {
-            KatamariEventManager.OnResetGame -= Reset;
+            EventManager.OnResetGame -= Reset;
         }
 
-        //TODO: I hate everything about this singleton implementation.
         void Start()
         {
-            Instance = this;
+            Instance = this; //looks like nobody better try to reference Main from another MonoBehaviour's Start method!
             spawner.SpawnObjects();
-            InitModels();
+            model = new GameModel(spawner.toSpawn, katamari.sphere.radius * 2);
             InitServices();
         }
 
@@ -41,13 +40,8 @@ namespace Klonamari
 
         private void Reset()
         {
-            KatamariEventManager.TearDown();
+            EventManager.TearDown();
             SceneManager.LoadScene("test");
-        }
-
-        private void InitModels()
-        {
-            model = new GameModel(spawner.toSpawn);
         }
 
         private void InitServices()

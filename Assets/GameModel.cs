@@ -4,32 +4,38 @@
     {
         public int totalCollectibleObjects;
         public int collectedObjects;
+        public float diameter; //not actually used right now. the real Katamari has diameter goals instead of # collected objects.
 
-        public GameModel(int totalCollectibleObjects)
+        public GameModel(int totalCollectibleObjects, float diameter)
         {
             this.totalCollectibleObjects = totalCollectibleObjects;
+            this.diameter = diameter;
             collectedObjects = 0;
-            KatamariEventManager.OnAttach += CollectObject;
-            KatamariEventManager.OnDetach += BrokenOff;
+            EventManager.OnAttach += CollectObject;
+            EventManager.OnDetach += BrokenOff;
 
-            KatamariEventManager.ObjectivesUpdated(this);
+            EventManager.ObjectivesUpdated(this);
         }
 
-        public void CollectObject(CollectibleObject collected)
+        public void CollectObject(CollectibleObject collected, float diameter)
         {
             ++collectedObjects;
-            KatamariEventManager.ObjectivesUpdated(this);
+            this.diameter = diameter;
+
+            EventManager.ObjectivesUpdated(this);
 
             if (collectedObjects >= totalCollectibleObjects)
             {
-                KatamariEventManager.Victory(this);
+                EventManager.Victory(this);
             }
         }
 
-        public void BrokenOff(CollectibleObject broken)
+        public void BrokenOff(CollectibleObject broken, float diameter)
         {
             --collectedObjects;
-            KatamariEventManager.ObjectivesUpdated(this);
+            this.diameter = diameter;
+
+            EventManager.ObjectivesUpdated(this);
         }
     }
 }

@@ -2,8 +2,9 @@
 
 namespace Klonamari
 {
-    public static class KatamariEventManager
+    public static class EventManager
     {
+        //so this class got bloated with boilerplate stuff fast. I'd probably use StrangeIoC Signals for this sort of thing in a larger project.
 
         public delegate void ContactAction(Collision collision);
         public static event ContactAction OnContact;
@@ -16,25 +17,25 @@ namespace Klonamari
             }
         }
 
-        public delegate void AttachAction(CollectibleObject collectible);
+        public delegate void AttachAction(CollectibleObject collectible, float diameter);
         public static event AttachAction OnAttach;
 
-        public static void Attach(CollectibleObject collectible)
+        public static void Attach(CollectibleObject collectible, float diameter)
         {
             if (OnAttach != null)
             {
-                OnAttach(collectible);
+                OnAttach(collectible, diameter);
             }
         }
 
-        public delegate void DetachAction(CollectibleObject collectible);
+        public delegate void DetachAction(CollectibleObject collectible, float diameter);
         public static event DetachAction OnDetach;
 
-        public static void Detach(CollectibleObject collectible)
+        public static void Detach(CollectibleObject collectible, float diameter)
         {
             if (OnDetach != null)
             {
-                OnDetach(collectible);
+                OnDetach(collectible, diameter);
             }
         }
 

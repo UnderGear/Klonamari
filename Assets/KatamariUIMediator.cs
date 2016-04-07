@@ -9,41 +9,41 @@ namespace Klonamari
         void OnEnable()
         {
             view = gameObject.GetComponent<KatamariUIView>();
-            KatamariEventManager.OnAttach += OnAttach;
-            KatamariEventManager.OnObjectivesUpdated += OnObjectivesUpdated;
-            KatamariEventManager.OnVictory += OnVictory;
+            EventManager.OnAttach += OnAttach;
+            EventManager.OnObjectivesUpdated += OnObjectivesUpdated;
+            EventManager.OnVictory += OnVictory;
 
             view.restartButton.onClick.AddListener(RestartClicked);
         }
 
         void OnDisable()
         {
-            KatamariEventManager.OnAttach -= OnAttach;
-            KatamariEventManager.OnObjectivesUpdated -= OnObjectivesUpdated;
-            KatamariEventManager.OnVictory -= OnVictory;
+            EventManager.OnAttach -= OnAttach;
+            EventManager.OnObjectivesUpdated -= OnObjectivesUpdated;
+            EventManager.OnVictory -= OnVictory;
 
             view.restartButton.onClick.RemoveListener(RestartClicked);
         }
 
-        private void OnAttach(CollectibleObject attached)
+        private void OnAttach(CollectibleObject attached, float diameter)
         {
             view.SetCollected(attached);
         }
 
         private void OnObjectivesUpdated(GameModel model)
         {
-            view.UpdateGoalText(model);
+            view.UpdateGoalText(model.collectedObjects, model.totalCollectibleObjects);
         }
 
-        private void OnVictory(GameModel model)
+        private void OnVictory(GameModel model) //passing in model for now. seems likely that a real victory screen might show more stats, etc.
         {
-            view.ShowVictory(model);
+            view.ShowVictory();
         }
 
         private void RestartClicked()
         {
             view.HideVictory();
-            KatamariEventManager.ResetGame();
+            EventManager.ResetGame();
         }
     }
 }

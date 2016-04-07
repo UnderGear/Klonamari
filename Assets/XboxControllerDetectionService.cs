@@ -43,10 +43,10 @@ namespace Klonamari
             
             if (xboxFound && !usingXboxController)
             {
-                KatamariEventManager.InputChanged(new KatamariDualThumbstickInput());
+                EventManager.InputChanged(new DualThumbstickInput());
             } else if (!xboxFound && usingXboxController)
             {
-                KatamariEventManager.InputChanged(new KatamariKeyboardInput());
+                EventManager.InputChanged(new KeyboardInput());
             }
         }
     }

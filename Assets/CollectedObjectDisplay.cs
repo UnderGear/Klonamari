@@ -11,7 +11,13 @@ namespace Klonamari
         {
             meshFilter.mesh = mesh;
             meshRenderer.material = mat;
-            transform.localScale = scale; //TODO: adjust position, I guess? based on scale, maybe
+
+            //make the mesh fit in front of our camera. only normalizing larger objects so that the first little boxes appear smaller when collected.
+            if (scale.magnitude > 1.0f)
+            {
+                scale = scale.normalized;
+            }
+            transform.localScale = scale;
         }
 
         public void Clear()

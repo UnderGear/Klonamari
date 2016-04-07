@@ -2,7 +2,7 @@
 
 namespace Klonamari
 {
-    public class KatamariDualThumbstickInput : KatamariInput
+    public class DualThumbstickInput : KatamariInput
     {
         private Vector3 input = new Vector3();
 
@@ -24,7 +24,7 @@ namespace Klonamari
             //left forward, right back -> 0, 1, 0
             //left back, right forward -> 0, -1, 0
 
-            //TODO: add dashing mechanics? quick 180?
+            //TODO: add boosting mechanics? quick 180?
             
             if (leftVertical > 0 && rightVertical > 0 || leftVertical < 0 && rightVertical < 0) //forward and backwards movement
             {
