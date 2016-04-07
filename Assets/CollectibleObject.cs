@@ -9,7 +9,10 @@ namespace Klonamari
         public Rigidbody rB;
         public BoxCollider uncollectedCollider;
         public Collider collectedCollider; //intended to be a rounded collider
-        
+
+        public AudioClip[] collectionClips;
+        public AudioClip detachClip;
+
         public float volume { get; private set; } //honestly, volume should probably be calculated, depending on the mesh we're using. maybe just collider bounds size.
         public float density;
         public float mass { get; private set; }
@@ -19,8 +22,7 @@ namespace Klonamari
         {
             Vector3 size = transform.lossyScale;
             volume = size.x * size.y * size.z;
-            mass = volume * density;
-            rB.mass = mass;
+            rB.mass = mass = volume * density;
         }
 
         public void Attach(Katamari katamari)
@@ -70,6 +72,16 @@ namespace Klonamari
         public Material GetMaterial()
         {
             return GetComponent<MeshRenderer>().material;
+        }
+
+        public AudioClip GetRandomCollectAudio()
+        {
+            int audioCount = collectionClips.Length;
+            if (audioCount == 0)
+            {
+                return null;
+            }
+            return collectionClips[Random.Range(0, audioCount)];
         }
     }
 }

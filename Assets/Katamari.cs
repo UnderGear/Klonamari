@@ -24,11 +24,14 @@ namespace Klonamari
 
         private KatamariInput katamariInput;
         public CameraBoom follow;
+        public AudioSource audioSource;
 
         public Rigidbody rB;
         public SphereCollider sphere;
-        private float volume;
+        public float volume { get; private set; }
         public float density;
+        private float Mass;
+        public float mass { get { return Mass; } private set { Debug.Log("mass: " + value); Mass = value; } }
 
         private List<Transform> touchingClimbables = new List<Transform>();
 
@@ -71,7 +74,8 @@ namespace Klonamari
         void Start()
         {
             volume = 4.0f / 3.0f * Mathf.PI * Mathf.Pow(sphere.radius, 3); //initial volume calculated by radius of the sphere.
-            rB.mass = density * volume;
+            Debug.Log("volume: " + volume + ", density: " + density);
+            rB.mass = mass = density * volume;
 
             follow.Init(this);
         }
@@ -93,8 +97,8 @@ namespace Klonamari
                 upwardInputMultiplier += UPWARD_FORCE_MULT;
             }
 
-            float adjustedTorqueMultiplier = TORQUE_MULT * rB.mass;
-            float adjustedForceMultiplier = rB.mass * (isGrounded ? FORCE_MULT : AIRBORNE_FORCE_MULT);
+            float adjustedTorqueMultiplier = TORQUE_MULT * mass;
+            float adjustedForceMultiplier = mass * (isGrounded ? FORCE_MULT : AIRBORNE_FORCE_MULT);
             Vector3 currentForward = new Vector3(0, rotationY, 0);
 
             Vector3 torque = new Vector3(forwardInputMultiplier * adjustedTorqueMultiplier, input.y * adjustedTorqueMultiplier, -lateralInputMultiplier * adjustedTorqueMultiplier);
@@ -157,10 +161,15 @@ namespace Klonamari
             CollectibleObject collectible = t.GetComponent<CollectibleObject>();
             if (collectible)
             {
-                if (collectible.mass < rB.mass * ROLL_UP_MAX_RATIO)
+                if (collectible.mass < mass * ROLL_UP_MAX_RATIO)
                 {
                     if (!collectible.collected)
                     {
+                        AudioClip clip = collectible.GetRandomCollectAudio();
+                        if (clip)
+                        {
+                            audioSource.PlayOneShot(clip);
+                        }
                         //collect the thing we hit!
                         collectible.collected = true;
                         rolledUp = true;
@@ -170,6 +179,8 @@ namespace Klonamari
                         t.parent = transform;
 
                         volume += collectible.volume;
+                        mass += collectible.mass;
+                        rB.mass += collectible.mass;
                         RecalculateRadius();
 
                         collectibles.Add(collectible);
@@ -189,7 +200,7 @@ namespace Klonamari
                             irregularCollectibles.Add(collectible);
                         }
                         else {
-                            rB.mass += collectible.rB.mass;
+                            
                             collectible.rB.mass = 0;
                             collectible.rB.detectCollisions = false;
                             collectible.rB.isKinematic = true;
@@ -213,6 +224,7 @@ namespace Klonamari
 
         void OnDetach(CollectibleObject detached)
         {
+            audioSource.PlayOneShot(detached.detachClip);
             //this could be improved by using a Dictionary and adding some sort of id to collectibles.
             collectibles.Remove(detached);
             if (irregularCollectibles.Contains(detached))
@@ -224,7 +236,7 @@ namespace Klonamari
             {
                 rB.mass -= detached.mass;
             }
-
+            mass -= detached.mass;
             volume -= detached.volume;
             RecalculateRadius();
 
@@ -244,16 +256,16 @@ namespace Klonamari
                 CollectibleObject collectible = irregularCollectibles[i];
                 if (!collectible.IsIrregular(sphere.radius))
                 {
+                    Debug.Log("irregular rolled in");
                     irregularCollectibles.RemoveAt(i);
 
                     if (collectible.rB == null)
                     {
                         collectible.rB = collectible.gameObject.AddComponent<Rigidbody>();
                     }
+                    collectible.rB.mass = 0;
                     collectible.rB.detectCollisions = false;
                     collectible.rB.isKinematic = true;
-                    collectible.rB.mass = 0;
-                    rB.mass += collectible.mass;
                 }
             }
         }

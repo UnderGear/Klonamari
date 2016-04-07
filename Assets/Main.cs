@@ -28,6 +28,8 @@ namespace Klonamari
             spawner.SpawnObjects();
             model = new GameModel(spawner.toSpawn, katamari.sphere.radius * 2);
             InitServices();
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
 
 #if UNITY_EDITOR || UNITY_STANDALONE
