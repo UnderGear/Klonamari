@@ -6,9 +6,6 @@ namespace Klonamari
 {
     public class Katamari : MonoBehaviour
     {
-        private Vector3 startingPosition;
-        private float startingRadius;
-
         private const float ONE_THIRD = 1.0f / 3.0f;
 
         public float ROLL_UP_MAX_RATIO = 0.25f; //NOTE that this isn't talking about rolling up stairs. the game's lingo uses this for collection.
@@ -30,12 +27,11 @@ namespace Klonamari
         public SphereCollider sphere;
         public float volume { get; private set; }
         public float density;
-        private float Mass;
-        public float mass { get { return Mass; } private set { Debug.Log("mass: " + value); Mass = value; } }
+        public float mass { get; private set; }
 
         private List<Transform> touchingClimbables = new List<Transform>();
 
-        public bool isGrounded;
+        public bool isGrounded { get; private set; }
         public int defaultContacts
         {
             get; private set;
@@ -53,16 +49,6 @@ namespace Klonamari
 
         void OnEnable()
         {
-            //A note here, I'd rather pull all of this stuff up into a Context class and keep all platform-dependent compilation up there.
-            //the Context class could fill out either a Service Locator or set up bindings for DI. This class would just ask for an instance
-            //of KatamariInput from injection or from the locator instead of calling new here.
-#if UNITY_EDITOR || UNITY_STANDALONE
-            SetInput(new KeyboardInput());
-#elif UNITY_XBOX360 || UNITY_XBOXONE
-            SetInput(new KatamariJoystickInput());
-#endif
-            //other input implementations for mobile, joystick, eye tracking, etc. we could also build a way for the user to select them once we have more.
-
             EventManager.OnInputChanged += SetInput;
         }
 
@@ -73,6 +59,16 @@ namespace Klonamari
 
         void Start()
         {
+            //A note here, I'd rather pull all of this stuff up into a Context class and keep all platform-dependent compilation up there.
+            //the Context class could fill out either a Service Locator or set up bindings for DI. This class would just ask for an instance
+            //of KatamariInput from injection or from the locator instead of calling new here.
+#if UNITY_EDITOR || UNITY_STANDALONE
+            SetInput(new KeyboardInput());
+#elif UNITY_XBOX360 || UNITY_XBOXONE
+            SetInput(new KatamariJoystickInput());
+#endif
+            //other input implementations for mobile, joystick, eye tracking, etc. we could also build a way for the user to select them once we have more.
+
             volume = 4.0f / 3.0f * Mathf.PI * Mathf.Pow(sphere.radius, 3); //initial volume calculated by radius of the sphere.
             Debug.Log("volume: " + volume + ", density: " + density);
             rB.mass = mass = density * volume;
@@ -94,7 +90,7 @@ namespace Klonamari
             //add an upward force if we're in contact with something we can climb.
             if ((Mathf.Abs(forwardInputMultiplier) > float.Epsilon || Mathf.Abs(lateralInputMultiplier) > float.Epsilon) && defaultContacts > 0)
             {
-                upwardInputMultiplier += UPWARD_FORCE_MULT;
+                upwardInputMultiplier += UPWARD_FORCE_MULT * mass;
             }
 
             float adjustedTorqueMultiplier = TORQUE_MULT * mass;
