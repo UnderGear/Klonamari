@@ -8,6 +8,8 @@ namespace Klonamari
 
         void OnEnable()
         {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
             view = gameObject.GetComponent<KatamariUIView>();
             EventManager.OnAttach += OnAttach;
             EventManager.OnObjectivesUpdated += OnObjectivesUpdated;
@@ -38,6 +40,9 @@ namespace Klonamari
         private void OnVictory(GameModel model) //passing in model for now. seems likely that a real victory screen might show more stats, etc.
         {
             view.ShowVictory();
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
 
         private void RestartClicked()
