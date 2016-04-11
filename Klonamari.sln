@@ -5,8 +5,6 @@ Project("{D7FD89F8-5783-9E62-FC9A-EFE3E485CED5}") = "Klonamari", "Assembly-CShar
 EndProject
 Project("{D7FD89F8-5783-9E62-FC9A-EFE3E485CED5}") = "Klonamari", "Assembly-CSharp.csproj", "{CE5AE70B-3D6B-5924-6989-DF4F9E918615}"
 EndProject
-Project("{D7FD89F8-5783-9E62-FC9A-EFE3E485CED5}") = "Klonamari", "Assembly-CSharp-Editor.csproj", "{9622343F-355B-F56E-FCE9-34C9F43C3E13}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,10 +19,6 @@ Global
 		{CE5AE70B-3D6B-5924-6989-DF4F9E918615}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CE5AE70B-3D6B-5924-6989-DF4F9E918615}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CE5AE70B-3D6B-5924-6989-DF4F9E918615}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9622343F-355B-F56E-FCE9-34C9F43C3E13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9622343F-355B-F56E-FCE9-34C9F43C3E13}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9622343F-355B-F56E-FCE9-34C9F43C3E13}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9622343F-355B-F56E-FCE9-34C9F43C3E13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
